@@ -34,6 +34,14 @@ class _MemoryGameState extends State<MemoryGame> {
   List<String> level1Images = [];
   bool allRevealed = false;
 
+  
+  final Map<String, String> parentChildPairs = {
+    "assets/lion.png": "assets/cub.png",
+    "assets/dog.png": "assets/puppy.png",
+    "assets/cat.png": "assets/kitten.png",
+    "assets/elephant.png": "assets/calf.png",
+  };
+
   @override
   void initState() {
     startLevel();
@@ -135,16 +143,16 @@ class _MemoryGameState extends State<MemoryGame> {
       if (firstSelected == -1) {
         firstSelected = index;
       } else {
-        if(currentLevel == 1 ){
-          if(level1Images[firstSelected] == level1Images[index]){
+        if (currentLevel == 1) {
+          if (level1Images[firstSelected] == level1Images[index]) {
             score += 10;
             firstSelected = -1;
             revealed[index] = true;
-            if(!revealed.contains(false)){
+            if (!revealed.contains(false)) {
               timer?.cancel();
               showGameOverDialog(firstLevelCompleted: true);
             }
-          }else{
+          } else {
             attempts--;
             if (attempts != 0) {
               await Future.delayed(const Duration(milliseconds: 500));
@@ -158,16 +166,22 @@ class _MemoryGameState extends State<MemoryGame> {
               showGameOverDialog();
             }
           }
-        }else{
-          if(level2Images[firstSelected] == level2Images[index]){
+        } else {
+          String firstImage = level2Images[firstSelected];
+          String secondImage = level2Images[index];
+          bool isPair =
+              parentChildPairs[firstImage] == secondImage ||
+                  parentChildPairs[secondImage] == firstImage;
+
+          if (isPair) {
             score += 10;
             firstSelected = -1;
             revealed[index] = true;
-            if(!revealed.contains(false)){
+            if (!revealed.contains(false)) {
               timer?.cancel();
               showGameOverDialog(win: true);
             }
-          }else{
+          } else {
             attempts--;
             if (attempts != 0) {
               await Future.delayed(const Duration(milliseconds: 500));
@@ -228,7 +242,9 @@ class _MemoryGameState extends State<MemoryGame> {
                           revealCard(index);
                         },
                         child: Card(
-                          color: revealed[index] ? Colors.white : Colors.purpleAccent,
+                          color: revealed[index]
+                              ? Colors.white
+                              : Colors.purpleAccent,
                           child: revealed[index]
                               ? Image.asset(currentLevel == 1
                               ? level1Images[index]
@@ -264,7 +280,10 @@ class _MemoryGameState extends State<MemoryGame> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
-                child: const Text("hint", style: TextStyle(color: Colors.white),),
+                child: const Text(
+                  "Hint",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
